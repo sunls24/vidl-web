@@ -73,4 +73,7 @@
   body {
     @apply bg-background text-foreground;
   }
+  body {
+    padding-bottom: max(env(safe-area-inset-bottom), 20px);
+  }
 }

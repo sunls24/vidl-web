@@ -1,10 +1,10 @@
 import { Input } from "@/components/ui/input.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import React, { useRef, useState } from "react";
-import { ArrowDownToLine, RotateCw, TextSearch } from "lucide-react";
+import { ArrowDownToLine, Github, RotateCw, TextSearch } from "lucide-react";
 import { toast } from "sonner";
 import Badge from "@/components/badge.tsx";
-import { VideoInfo } from "@/lib/constant.ts";
+import { GITHUB_URL, VERSION, VideoInfo } from "@/lib/constant.ts";
 import {
   convertSeconds,
   extractUrl,
@@ -27,13 +27,12 @@ import {
 import { Progress } from "@/components/ui/progress.tsx";
 
 function App() {
-  const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [loading, setLoading] = useState(false);
   const [formatId, setFormatId] = useState<string | undefined>(undefined);
   const [videoInfo, setVideoInfo] = useState<VideoInfo | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  const [alert, setAlert] = useState(false);
 
   async function onAnalyze() {
     if (!inputRef.current || !inputRef.current.value) {
@@ -45,8 +44,8 @@ function App() {
       toast.warning("No available link found");
       return;
     }
-    setVideoInfo(null);
     setLoading(true);
+    setVideoInfo(null);
     setFormatId(undefined);
     try {
       const res = await fetch(`/api/analyze?link=${encodeURIComponent(link)}`);
@@ -88,10 +87,7 @@ function App() {
       }
     }
     const format = videoInfo.formats[formatIndex];
-    const filename = `${videoInfo.extractor}-${videoInfo.id}-${format.format.replace(
-      / /g,
-      "",
-    )}`;
+    const filename = `${videoInfo.extractor}-${videoInfo.id}-${format.format.replace(/ /g, "")}`;
     let size = format.size;
     let complexFormatId = formatId;
     const audio = findAudio(videoInfo.formats, formatIndex);
@@ -104,9 +100,7 @@ function App() {
     console.debug("format:", format);
     console.debug("audio:", audio);
 
-    let query = `link=${encodeURIComponent(
-      videoInfo.webpage_url,
-    )}&formatId=${complexFormatId}&filename=${encodeURIComponent(filename)}`;
+    let query = `link=${encodeURIComponent(videoInfo.webpage_url)}&formatId=${complexFormatId}&filename=${encodeURIComponent(filename)}`;
     if (!audio) {
       // not merge
       query += `&ext=${format.ext}`;
@@ -227,11 +221,11 @@ function App() {
             </div>
           </div>
           <div className="flex w-full max-w-[358px] flex-col gap-2">
-            <h3 className="text-xl font-medium underline underline-offset-4">
+            <h3 className="line-clamp-2 text-xl font-medium underline underline-offset-4">
               {videoInfo.title}
             </h3>
             {videoInfo.description && (
-              <p className="truncate text-muted-foreground">
+              <p className="line-clamp-3 text-muted-foreground">
                 {videoInfo.description}
               </p>
             )}
@@ -253,6 +247,22 @@ function App() {
           </div>
         </div>
       )}
+      <div className="flex gap-2">
+        <div className="flex gap-1 rounded-md bg-secondary px-2 py-0.5">
+          <span className="text-muted-foreground">Support</span>
+          <img className="h-6 w-6" src="/img/douyin.svg" />
+          <img className="h-6 w-6" src="/img/youtube.svg" />
+          <img className="h-6 w-6" src="/img/bilibili.svg" />
+        </div>
+        <a
+          href={GITHUB_URL}
+          target="_blank"
+          className="flex cursor-pointer items-center gap-1 rounded-md bg-secondary px-2 py-0.5 underline decoration-muted-foreground underline-offset-2"
+        >
+          <Github size={18} />
+          <span className="text-muted-foreground">{VERSION}</span>
+        </a>
+      </div>
     </div>
   );
 }
