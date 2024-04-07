@@ -5,16 +5,15 @@ import (
 	"io"
 	"net/http"
 	"strings"
-	"vidl-web/common"
+	"vidlp/common/utils"
 )
 
 func Proxy(c *gin.Context) {
-	targetUrl, exit := common.Query(c, "url")
+	target, exit := utils.MustQuery(c, "url")
 	if exit {
 		return
 	}
-	client := &http.Client{}
-	req, _ := http.NewRequest(c.Request.Method, targetUrl, c.Request.Body)
+	req, _ := http.NewRequest(c.Request.Method, target, c.Request.Body)
 	for k, v := range c.Request.Header {
 		if strings.ToLower(k) == "referer" {
 			continue
@@ -22,15 +21,14 @@ func Proxy(c *gin.Context) {
 		req.Header[k] = v
 	}
 
-	resp, err := client.Do(req)
+	resp, err := utils.HttpClient.Do(req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, common.NewErrorMsg(err.Error()))
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 	defer resp.Body.Close()
 	for k, v := range resp.Header {
 		c.Header(k, v[0])
 	}
-
 	_, _ = io.Copy(c.Writer, resp.Body)
 }

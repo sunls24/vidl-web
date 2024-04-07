@@ -3,8 +3,9 @@ package main
 import (
 	"embed"
 	"github.com/gin-gonic/gin"
-	"vidl-web/common/logger"
-	"vidl-web/router"
+	"vidlp/common/logger"
+	"vidlp/common/utils"
+	"vidlp/router"
 )
 
 //go:embed web/dist
@@ -14,7 +15,10 @@ func main() {
 	r := gin.New()
 	r.Use(logger.Middleware(), gin.Recovery())
 	router.SetRouter(r, webFS)
-	if err := r.Run(); err != nil {
+
+	var host = utils.GetEnv("HOST", "127.0.0.1")
+	var port = utils.GetEnv("PORT", "8080")
+	if err := r.Run(host + ":" + port); err != nil {
 		logger.Fatal().Err(err).Msg("server run failed")
 	}
 }

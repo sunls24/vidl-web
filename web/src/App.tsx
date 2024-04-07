@@ -88,7 +88,10 @@ function App() {
       }
     }
     const format = videoInfo.formats[formatIndex];
-    const filename = `${videoInfo.extractor}-${videoInfo.id}-${format.format}`;
+    const filename = `${videoInfo.extractor}-${videoInfo.id}-${format.format.replace(
+      / /g,
+      "",
+    )}`;
     let size = format.size;
     let complexFormatId = formatId;
     const audio = findAudio(videoInfo.formats, formatIndex);
@@ -110,6 +113,10 @@ function App() {
     }
     try {
       const resp = await fetch(`/api/download?${query}`);
+      if (!resp.ok) {
+        toast.error((await resp.json()).error);
+        return;
+      }
       const progress = new Response(
         new ReadableStream({
           async start(controller) {
@@ -190,7 +197,7 @@ function App() {
                 <SelectContent>
                   {videoInfo.formats.map((v, i) => (
                     <SelectItem key={v.id} value={v.id}>
-                      {`${v.format} - ${Math.floor(v.tbr)}k ≈${toMiB(
+                      {`${v.format} ≈${toMiB(
                         v.size + (findAudio(videoInfo.formats, i)?.size ?? 0),
                       ).toFixed(2)}Mib`}
                     </SelectItem>
@@ -240,9 +247,9 @@ function App() {
                 value={convertSeconds(videoInfo.duration)}
               />
             )}
-            {videoInfo.view_count && (
+            {videoInfo.view_count > 0 ? (
               <Badge title="View" value={formatCount(videoInfo.view_count)} />
-            )}
+            ) : null}
           </div>
         </div>
       )}

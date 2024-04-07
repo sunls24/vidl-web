@@ -1,16 +1,13 @@
 package common
 
-type ErrorMsg struct {
-	Error string `json:"error"`
-}
-
-func NewErrorMsg(msg string) ErrorMsg {
-	return ErrorMsg{Error: msg}
-}
+import (
+	"vidlp/common/utils"
+)
 
 var (
-	YTBin     = GetEnv("YTBin", "yt-dlp")
-	FfmpegBin = GetEnv("Ffmpeg", "ffmpeg")
+	YtDlpBin  = utils.GetEnv("YT_DLP", "yt-dlp")
+	FfmpegBin = utils.GetEnv("FFMPEG", "ffmpeg")
+	Cookies   = utils.GetEnv("COOKIES", "cookies.txt")
 )
 
 const (

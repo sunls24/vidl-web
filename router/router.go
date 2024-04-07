@@ -4,7 +4,7 @@ import (
 	"embed"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
-	"vidl-web/controller"
+	"vidlp/controller"
 )
 
 func SetRouter(r *gin.Engine, webFS embed.FS) {

@@ -1,4 +1,4 @@
-module vidl-web
+module vidlp
 
 go 1.22
 

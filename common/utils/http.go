@@ -1,16 +1,19 @@
-package common
+package utils
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"os"
+	"time"
+	"vidlp/model"
 )
 
-func Query(c *gin.Context, key string) (string, bool) {
+var HttpClient = &http.Client{Timeout: time.Minute}
+
+func MustQuery(c *gin.Context, key string) (string, bool) {
 	var value = c.Query(key)
 	if value == "" {
-		c.JSON(http.StatusBadRequest, fmt.Sprintf("No %s parameters found", key))
+		c.JSON(http.StatusBadRequest, model.NewMsgF("No %s parameters found", key))
 		return value, true
 	}
 	return value, false
