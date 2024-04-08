@@ -6,7 +6,7 @@ import (
 
 var (
 	YtDlpBin  = utils.GetEnv("YT_DLP", "yt-dlp")
-	FfmpegBin = utils.GetEnv("FFMPEG", "ffmpeg")
+	FfmpegBin = utils.GetEnv("FFMPEG", "./ffmpeg")
 	Cookies   = utils.GetEnv("COOKIES", "cookies.txt")
 )
 

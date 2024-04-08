@@ -17,7 +17,7 @@ func main() {
 	router.SetRouter(r, webFS)
 
 	var host = utils.GetEnv("HOST", "127.0.0.1")
-	var port = utils.GetEnv("PORT", "8080")
+	var port = utils.GetEnv("PORT", "3003")
 	if err := r.Run(host + ":" + port); err != nil {
 		logger.Fatal().Err(err).Msg("server run failed")
 	}
