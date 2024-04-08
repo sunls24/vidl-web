@@ -19,12 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Progress } from "@/components/ui/progress.tsx";
+import Download from "@/components/download.tsx";
 
 function App() {
   const [alert, setAlert] = useState(false);
@@ -180,8 +175,8 @@ function App() {
         </Button>
       </div>
       {videoInfo && (
-        <div className="flex w-full max-w-[730px] flex-col items-center gap-4 md:flex-row md:justify-between md:gap-0">
-          <div className="flex w-full max-w-[358px] flex-col gap-4 md:gap-2">
+        <div className="flex w-full max-w-[600px] flex-col gap-3 md:max-w-[730px] md:flex-row">
+          <div className="flex basis-1/2 flex-col gap-3">
             <img src={videoInfo.thumbnail} />
             <div className="flex gap-2">
               <Select value={formatId} onValueChange={setFormatId}>
@@ -198,29 +193,19 @@ function App() {
                   ))}
                 </SelectContent>
               </Select>
-              <AlertDialog open={alert} onOpenChange={setAlert}>
-                <AlertDialogTrigger asChild>
+              <Download
+                open={alert}
+                onChange={setAlert}
+                progress={progress}
+                trigger={
                   <Button onClick={onDownload}>
                     <ArrowDownToLine />
                   </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <div className="flex items-center justify-center gap-2">
-                    <RotateCw className="animate-spin" />
-                    <span className="font-medium">
-                      The video file is being
-                      <span className="mx-1 font-bold underline underline-offset-4">
-                        {progress === 0 ? "prepared" : "downloaded"}
-                      </span>
-                      ⌛
-                    </span>
-                  </div>
-                  {progress !== 0 && <Progress value={progress} />}
-                </AlertDialogContent>
-              </AlertDialog>
+                }
+              />
             </div>
           </div>
-          <div className="flex w-full max-w-[358px] flex-col gap-2">
+          <div className="flex max-w-[96%] basis-1/2 flex-col gap-2 overflow-auto">
             <h3 className="line-clamp-2 text-xl font-medium underline underline-offset-4">
               {videoInfo.title}
             </h3>
@@ -257,10 +242,10 @@ function App() {
         <a
           href={GITHUB_URL}
           target="_blank"
-          className="flex cursor-pointer items-center gap-1 rounded-md bg-secondary px-2 py-0.5 underline decoration-muted-foreground underline-offset-2"
+          className="flex cursor-pointer items-center gap-1 rounded-md bg-secondary px-2 py-0.5 text-muted-foreground"
         >
           <Github size={18} />
-          <span className="text-muted-foreground">{VERSION}</span>
+          <span className="underline underline-offset-2">{VERSION}</span>
         </a>
       </div>
     </div>

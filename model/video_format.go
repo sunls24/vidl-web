@@ -38,45 +38,39 @@ func NewVideoFormat(f gjson.Result, extractor string) (VideoFormat, bool) {
 }
 
 func (vf *VideoFormat) filterFormat(f gjson.Result, extractor string) bool {
+	var tbr = strconv.FormatInt(f.Get("tbr").Int(), 10) + "k"
 	switch extractor {
 	case "BiliBili":
-		// 1080P 高清 - hev1
-		var resolution, more string
+		// 1080P 高清 - hev1 - 749k
 		if vf.VCodec == "none" {
-			resolution = strings.TrimSpace(strings.Split(vf.Format, "-")[1])
-			var tbr = f.Get("tbr").Int()
-			more = strconv.FormatInt(tbr, 10) + "k"
-		} else {
-			quality := f.Get("quality").Int()
-			if quality < 32 {
-				// < 480p
-				return true
-			}
-			resolution = vf.Format
-			more = strings.Split(vf.VCodec, ".")[0]
+			// audio only
+			resolution := strings.TrimSpace(strings.Split(vf.Format, "-")[1])
+			vf.Format = join(resolution, tbr)
+			return false
 		}
-		vf.Format = strings.Join([]string{resolution, more}, " - ")
+		if quality := f.Get("quality").Int(); quality < 32 {
+			// < 480p
+			return true
+		}
+		vf.Format = join(vf.Format, codec(vf.VCodec), tbr)
 	case "youtube":
 		// 3840x2160 (2160p) - vp09 - 4654k
 		resolution := strings.TrimSpace(strings.Split(vf.Format, "-")[1])
 		if resolution == "drc" || vf.Ext == "webm" {
 			return true
 		}
-		var tbr = strconv.FormatInt(f.Get("tbr").Int(), 10) + "k"
-		var codec = vf.VCodec
-		if codec == "none" {
-			vf.Format = strings.Join([]string{resolution, tbr}, " - ")
+		if vf.VCodec == "none" {
+			// audio only
+			vf.Format = join(resolution, tbr)
 			return false
 		}
-		quality := f.Get("quality").Int()
-		if quality < 8 {
+		if quality := f.Get("quality").Int(); quality < 8 {
 			// < 720p
 			return true
 		}
-		more := strings.Split(codec, ".")[0]
-		vf.Format = strings.Join([]string{resolution, more, tbr}, " - ")
-	case "Douyin":
-		// 720p - h265 - Playback
+		vf.Format = join(resolution, codec(vf.VCodec), tbr)
+	case "Douyin", "TikTok":
+		// 720p - h265 - 1115k - Playback
 		if strings.HasPrefix(vf.Id, "download_addr-") {
 			return true
 		}
@@ -87,7 +81,15 @@ func (vf *VideoFormat) filterFormat(f gjson.Result, extractor string) bool {
 		resolution := strings.Split(vf.Id, "_")[1]
 		var formatNote = f.Get("format_note").String()
 		more := strings.ReplaceAll(formatNote, " video", "")
-		vf.Format = strings.Join([]string{resolution, vf.VCodec, more}, " - ")
+		vf.Format = join(resolution, vf.VCodec, tbr, more)
 	}
 	return false
+}
+
+func join(args ...string) string {
+	return strings.Join(args, " - ")
+}
+
+func codec(str string) string {
+	return strings.Split(str, ".")[0]
 }
